@@ -1,7 +1,7 @@
 # Личный проект «Кексобукинг» [![Build status][travis-image]][travis-url]
 
 * Студент: [Дмитрий](https://up.htmlacademy.ru/javascript/21/user/11132).
-* Наставник: `Неизвестно`.
+* Наставник: [Евгений](https://htmlacademy.ru/profile/ealipkin).
 
 ---
 
