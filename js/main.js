@@ -8,7 +8,7 @@ const pinTemplate = document.querySelector(`#pin`).content.querySelector(`.map__
 const PIN_WIDTH = 50;
 const PIN_HEIGHT = 70;
 const PIN_POINTER_X = PIN_WIDTH / 2;
-const PIN_POINTER_Y = PIN_HEIGHT;
+const PIN_POINTER_Y = PIN_HEIGHT / 2;
 const map = document.querySelector(`.map`);
 
 const getRandomArrayElement = (array) => {
@@ -70,7 +70,7 @@ document.querySelector(`.map`).classList.remove(`map--faded`);
 const createPin = (pin) => {
   const newPin = pinTemplate.cloneNode(true);
   newPin.style.left = pin.location.x - PIN_POINTER_X + `px`;
-  newPin.style.top = pin.location.y + PIN_POINTER_Y + `px`;
+  newPin.style.top = pin.location.y - PIN_POINTER_Y + `px`;
   newPin.querySelector(`img`).src = pin.author.avatar;
   newPin.alt = pinTemplate.querySelector(`img`).alt;
 
