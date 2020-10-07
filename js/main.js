@@ -3,10 +3,12 @@
 const HOUSE_TYPE = [`palace`, `flat`, `house`, `bungalow`];
 const CHECK_IN_OUT_TIMINGS = [`12:00`, `13:00`, `14:00`];
 const FEAUTURES = [`wifi`, `dishwasher`, `parking`, `washer`, `elevator`, `conditioner`];
-const PHOTOS = [`http://o0.github.io/assets/images/tokyo/hotel1.jpg`, `http://o0.github.io/assets/images/tokyo/hotel2.jpg`, `http://o0.github.io/assets/images/tokyo/hotel3.jpg`]
+const PHOTOS = [`http://o0.github.io/assets/images/tokyo/hotel1.jpg`, `http://o0.github.io/assets/images/tokyo/hotel2.jpg`, `http://o0.github.io/assets/images/tokyo/hotel3.jpg`];
 const pinTemplate = document.querySelector(`#pin`).content.querySelector(`.map__pin`);
-const PIN_WIDTH = 40;
-const PIN_HEIGHT = 40;
+const PIN_WIDTH = 50;
+const PIN_HEIGHT = 70;
+const PIN_POINTER_X = PIN_WIDTH / 2;
+const PIN_POINTER_Y = PIN_HEIGHT;
 const map = document.querySelector(`.map`);
 
 const getRandomArrayElement = (array) => {
@@ -20,7 +22,7 @@ const getRandomInt = (min, max) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
-const cutToRandomLength = (array) => {
+const setRandomArrayLength = (array) => {
   const newArrayLength = getRandomInt(0, array.length);
   let newArray = [];
   for (let i = -1; i < newArrayLength; i++) {
@@ -45,9 +47,9 @@ const createAdds = () => {
         guests: getRandomInt(1, 3),
         checkin: getRandomArrayElement(CHECK_IN_OUT_TIMINGS),
         checkout: getRandomArrayElement(CHECK_IN_OUT_TIMINGS),
-        features: cutToRandomLength(FEAUTURES),
+        features: setRandomArrayLength(FEAUTURES),
         description: `Вы захотите сюда вернуться!`,
-        photos: cutToRandomLength(PHOTOS),
+        photos: setRandomArrayLength(PHOTOS),
       },
       location: {
         x: getRandomInt(0, map.offsetWidth),
@@ -67,8 +69,8 @@ document.querySelector(`.map`).classList.remove(`map--faded`);
 
 const createPin = (pin) => {
   const newPin = pinTemplate.cloneNode(true);
-  newPin.style.left = pin.location.x - PIN_WIDTH + `px`;
-  newPin.style.top = pin.location.y + PIN_HEIGHT + `px`;
+  newPin.style.left = pin.location.x - PIN_POINTER_X + `px`;
+  newPin.style.top = pin.location.y + PIN_POINTER_Y + `px`;
   newPin.querySelector(`img`).src = pin.author.avatar;
   newPin.alt = pinTemplate.querySelector(`img`).alt;
 
