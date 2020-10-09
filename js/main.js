@@ -122,10 +122,13 @@ const createCard = (card) => {
   newCard.querySelector(`.popup__type`).textContent = HouseType[card.offer.type];
   newCard.querySelector(`.popup__text--capacity`).textContent = `${card.offer.rooms} комнаты для ${card.offer.guests} гостей`;
   newCard.querySelector(`.popup__text--time`).textContent = `Заезд после ` + card.offer.checkin + `, выезд до ` + card.offer.checkout;
+
   popupAvatar.src = card.author.avatar;
+  if (card.author.avatar === (undefined || ``)) {
+    popupAvatar.remove();
+  }
 
   popupDescription.textContent = card.offer.description;
-
   if (card.offer.description === (undefined || ``)) {
     popupDescription.remove();
   }
@@ -134,7 +137,6 @@ const createCard = (card) => {
   for (let i = 0; i < popupFeaturesList.length; i++) {
     popupFeatures.querySelector(`.popup__feature`).remove();
   }
-
   // Для доступных услуг, создаем и добавляем элементы в список попапа
   if (card.offer.features.length > 0) {
     card.offer.features.forEach(function (item) {
@@ -149,7 +151,6 @@ const createCard = (card) => {
 
   // Удаляем элементы, скопированые из шаблона.
   popupPhotos.querySelector(`.popup__photo`).remove();
-
   // Для доступных фото жилья, создаем и добавляем элементы в список попап
   if (card.offer.photos.length > 0) {
     card.offer.photos.forEach(function (item) {
