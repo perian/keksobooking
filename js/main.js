@@ -86,7 +86,6 @@ const createAds = (amount) => {
 
 const dataArray = createAds(ADS_AMOUNT);
 
-map.classList.remove(`map--faded`);
 
 const createPin = (pin) => {
   const newPin = pinTemplate.cloneNode(true);
@@ -101,13 +100,24 @@ const createPin = (pin) => {
 
 const fragment = document.createDocumentFragment();
 
-for (let i = 0; i < dataArray.length; i++) {
-  fragment.appendChild(createPin(dataArray[i]));
-}
+const activateMap = () => {
+  map.classList.remove(`map--faded`);
 
-const mapPins = document.querySelector(`.map__pins`);
-mapPins.appendChild(fragment);
+  for (let i = 0; i < dataArray.length; i++) {
+    fragment.appendChild(createPin(dataArray[i]));
+  }
 
+  const mapPins = document.querySelector(`.map__pins`);
+  mapPins.appendChild(fragment);
+
+  isDisableAttribute(notificationFieldsets, false);
+  isDisableAttribute(mapFiltersFieldsets, false);
+  isDisableAttribute(mapFiltersSelects, false);
+
+  notificationForm.classList.remove(`ad-form--disabled`);
+};
+
+/**
 const createCard = (card) => {
   const newCard = cardTemplate.cloneNode(true);
   const popupFeatures = newCard.querySelector(`.popup__features`);
@@ -169,3 +179,37 @@ const createCard = (card) => {
 
 // Создаем и добавляем карточку обьявления на основе первого элемента из массива обьявлений
 map.insertBefore(fragment.appendChild(createCard(dataArray[0])), mapFilterContainer);
+*/
+
+
+// Неактивное состояние страницы
+const notificationForm = document.querySelector(`.ad-form`);
+const notificationFieldsets = notificationForm.querySelectorAll(`fieldset`);
+const mapFiltersFieldsets = mapFilterContainer.querySelectorAll(`fieldset`);
+const mapFiltersSelects = mapFilterContainer.querySelectorAll(`select`);
+
+const isDisableAttribute = (domElement, exist) => {
+  domElement.forEach((value) => {
+    value.disabled = exist;
+  });
+};
+
+isDisableAttribute(notificationFieldsets, true);
+isDisableAttribute(mapFiltersFieldsets, true);
+isDisableAttribute(mapFiltersSelects, true);
+
+
+// Первое взаимодействие с меткой переводит страницу в активное состояние
+const mainPin = map.querySelector(`.map__pin--main`);
+const onEnterMouseClickActivateMap = (evt) => {
+  if (evt.button === 0 || evt.key === `Enter`) {
+    activateMap();
+  }
+  mainPin.removeEventListener(`mousedown`, onEnterMouseClickActivateMap);
+  mainPin.removeEventListener(`keydown`, onEnterMouseClickActivateMap);
+};
+
+mainPin.addEventListener(`mousedown`, onEnterMouseClickActivateMap);
+mainPin.addEventListener(`keydown`, onEnterMouseClickActivateMap);
+
+
