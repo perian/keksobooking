@@ -205,6 +205,9 @@ const onEnterMouseClickActivateMap = (evt) => {
   if (evt.button === 0 || evt.key === `Enter`) {
     activateMap();
   }
+
+  setAddressValue();
+
   mainPin.removeEventListener(`mousedown`, onEnterMouseClickActivateMap);
   mainPin.removeEventListener(`keydown`, onEnterMouseClickActivateMap);
 };
@@ -212,4 +215,21 @@ const onEnterMouseClickActivateMap = (evt) => {
 mainPin.addEventListener(`mousedown`, onEnterMouseClickActivateMap);
 mainPin.addEventListener(`keydown`, onEnterMouseClickActivateMap);
 
+const address = notificationForm.querySelector(`#address`);
+const mainPinWidth = mainPin.offsetWidth;
+const mainPinHeight = mainPin.offsetHeight;
+const coneHeight = window.getComputedStyle(mainPin, `:after`).borderTopWidth;
+const mainPinX = mainPin.style.left;
+const mainPinY = mainPin.style.top;
+
+const removePxFromPropertyNumber = (property) => {
+  return parseInt(property.replace(`px`, ``), 10);
+};
+
+const setAddressValue = () => {
+  const coneX = Math.round(removePxFromPropertyNumber(mainPinX) + (mainPinWidth / 2));
+  const coneY = Math.round(removePxFromPropertyNumber(mainPinY) + mainPinHeight + removePxFromPropertyNumber(coneHeight));
+
+  address.value = `${coneX} ` + `${coneY}`;
+};
 
