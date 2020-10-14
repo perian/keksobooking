@@ -218,18 +218,43 @@ mainPin.addEventListener(`keydown`, onEnterMouseClickActivateMap);
 const address = notificationForm.querySelector(`#address`);
 const mainPinWidth = mainPin.offsetWidth;
 const mainPinHeight = mainPin.offsetHeight;
-const coneHeight = window.getComputedStyle(mainPin, `:after`).borderTopWidth;
 const mainPinX = mainPin.style.left;
 const mainPinY = mainPin.style.top;
+const coneHeight = window.getComputedStyle(mainPin, `:after`).borderTopWidth;
 
-const removePxFromPropertyNumber = (property) => {
+const transformPropertyToInteger = (property) => {
   return parseInt(property.replace(`px`, ``), 10);
 };
 
 const setAddressValue = () => {
-  const coneX = Math.round(removePxFromPropertyNumber(mainPinX) + (mainPinWidth / 2));
-  const coneY = Math.round(removePxFromPropertyNumber(mainPinY) + mainPinHeight + removePxFromPropertyNumber(coneHeight));
+  const coneX = Math.round(transformPropertyToInteger(mainPinX) + (mainPinWidth / 2));
+  const coneY = Math.round(transformPropertyToInteger(mainPinY) + mainPinHeight + transformPropertyToInteger(coneHeight));
 
-  address.value = `${coneX} ` + `${coneY}`;
+  address.value = `${coneX}, ` + `${coneY}`;
 };
 
+
+// Валидация соответствия гостей и комнат
+
+const roomsNumbers = notificationForm.querySelector(`#room_number`).querySelectorAll(`option`);
+const roomsCapacity = notificationForm.querySelector(`#capacity`).querySelectorAll(`option`);
+const roomCapacity = notificationForm.querySelector(`#capacity`);
+const roomNumbers = notificationForm.querySelector(`#room_number`);
+
+const roomNumbersValue = roomNumbers[roomNumbers.selectedIndex].value;
+const roomCapacityValue = roomCapacity[roomCapacity.selectedIndex].value;
+
+notificationForm.addEventListener(`submit`, (evt) => {
+  evt.preventDefault();
+  if (roomNumbersValue !== roomCapacityValue) {
+    roomsCapacity[2].invalid = true;
+    roomsCapacity[3].invalid = true;
+    roomsCapacity[0].invalid = true;
+    if (roomsCapacity[0].invalid) {
+      console.log(`inasdiandj`);
+      roomCapacity.setCustomValidity(`только 1 гость для 1й комнаты`);
+    } else {
+      roomCapacity.setCustomValidity(``);
+    }
+  }
+});
