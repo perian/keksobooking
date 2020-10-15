@@ -230,31 +230,42 @@ const setAddressValue = () => {
   const coneX = Math.round(transformPropertyToInteger(mainPinX) + (mainPinWidth / 2));
   const coneY = Math.round(transformPropertyToInteger(mainPinY) + mainPinHeight + transformPropertyToInteger(coneHeight));
 
-  address.value = `${coneX}, ` + `${coneY}`;
+  address.value = `${coneX} ` + `${coneY}`;
 };
 
 
 // Валидация соответствия гостей и комнат
 
-const roomsNumbers = notificationForm.querySelector(`#room_number`).querySelectorAll(`option`);
-const roomsCapacity = notificationForm.querySelector(`#capacity`).querySelectorAll(`option`);
 const roomCapacity = notificationForm.querySelector(`#capacity`);
 const roomNumbers = notificationForm.querySelector(`#room_number`);
+const NOT_FOR_GUESTS = 0;
+const HUNDRED_ROOMS = 100;
 
-const roomNumbersValue = roomNumbers[roomNumbers.selectedIndex].value;
-const roomCapacityValue = roomCapacity[roomCapacity.selectedIndex].value;
+const checkRoomsCapacity = () => {
+  roomCapacity.invalid = true;
+  roomCapacity.reportValidity();
 
-notificationForm.addEventListener(`submit`, (evt) => {
-  evt.preventDefault();
-  if (roomNumbersValue !== roomCapacityValue) {
-    roomsCapacity[2].invalid = true;
-    roomsCapacity[3].invalid = true;
-    roomsCapacity[0].invalid = true;
-    if (roomsCapacity[0].invalid) {
-      console.log(`inasdiandj`);
-      roomCapacity.setCustomValidity(`только 1 гость для 1й комнаты`);
-    } else {
-      roomCapacity.setCustomValidity(``);
-    }
+  let roomNumbersAmount = parseInt(roomNumbers.value, 10);
+  let roomCapacityAmount = parseInt(roomCapacity.value, 10);
+
+  if ((roomNumbersAmount < HUNDRED_ROOMS) && (roomCapacityAmount === NOT_FOR_GUESTS)) {
+    roomCapacity.setCustomValidity(`Заселите хоть кого-нибудь!`);
+  } else if (((roomNumbersAmount === HUNDRED_ROOMS)) && (roomCapacityAmount > NOT_FOR_GUESTS)) {
+    roomCapacity.setCustomValidity(`Не для гостей`);
+  } else if (roomNumbersAmount < roomCapacityAmount) {
+    roomCapacity.setCustomValidity(`Максимум гостей ${roomNumbersAmount}`);
+  } else {
+    roomCapacity.valid = true;
+    roomCapacity.setCustomValidity(``);
   }
+};
+
+roomNumbers.addEventListener(`change`, () => {
+  checkRoomsCapacity();
 });
+
+roomCapacity.addEventListener(`change`, () => {
+  checkRoomsCapacity();
+});
+
+checkRoomsCapacity();
