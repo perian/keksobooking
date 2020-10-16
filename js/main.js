@@ -48,6 +48,8 @@ const getRandomArrayLength = (array) => {
   return array.slice(0, newArrayLength);
 };
 
+let pinDatasetNumber = 0;
+
 const createAds = (amount) => {
   const newAds = [];
 
@@ -71,6 +73,7 @@ const createAds = (amount) => {
         features: getRandomArrayLength(FEAUTURES),
         description: `Вы захотите сюда вернуться!`,
         photos: getRandomArrayLength(PHOTOS),
+        popupNumber: i,
       },
       location: {
         x: AD_LOCATION_X,
@@ -86,7 +89,6 @@ const createAds = (amount) => {
 
 const dataArray = createAds(ADS_AMOUNT);
 
-
 const createPin = (pin) => {
   const newPin = pinTemplate.cloneNode(true);
   const image = newPin.querySelector(`img`);
@@ -94,11 +96,12 @@ const createPin = (pin) => {
   newPin.style.top = pin.location.y - PIN_POINTER_Y + `px`;
   image.src = pin.author.avatar;
   image.alt = pin.offer.title;
-
+  image.dataset.number = pin.offer.popupNumber;
   return newPin;
 };
 
 const fragment = document.createDocumentFragment();
+const mapPins = document.querySelector(`.map__pins`);
 
 const activateMap = () => {
   map.classList.remove(`map--faded`);
@@ -107,7 +110,6 @@ const activateMap = () => {
     fragment.appendChild(createPin(dataArray[i]));
   }
 
-  const mapPins = document.querySelector(`.map__pins`);
   mapPins.appendChild(fragment);
 
   isDisableAttribute(notificationFieldsets, false);
@@ -117,7 +119,7 @@ const activateMap = () => {
   notificationForm.classList.remove(`ad-form--disabled`);
 };
 
-/**
+
 const createCard = (card) => {
   const newCard = cardTemplate.cloneNode(true);
   const popupFeatures = newCard.querySelector(`.popup__features`);
@@ -178,9 +180,11 @@ const createCard = (card) => {
 };
 
 // Создаем и добавляем карточку обьявления на основе первого элемента из массива обьявлений
-map.insertBefore(fragment.appendChild(createCard(dataArray[0])), mapFilterContainer);
-*/
 
+const showCard = (cardNumber) => {
+  map.insertBefore(fragment.appendChild(createCard(dataArray[cardNumber])), mapFilterContainer);
+};
+showCard();
 
 // Неактивное состояние страницы
 const notificationForm = document.querySelector(`.ad-form`);
@@ -269,3 +273,18 @@ roomCapacity.addEventListener(`change`, () => {
 });
 
 checkRoomsCapacity();
+
+
+activateMap();
+// let popup = map.querySelector(`.popup`);
+
+mapPins.addEventListener(`click`, (evt) => {
+  const popup = map.querySelector(`.popup`);
+  if (popup) {
+    popup.remove();
+  }
+  const clickedPin = evt.target.dataset.number;
+
+  map.insertBefore(fragment.appendChild(createCard(dataArray[clickedPin])), mapFilterContainer);
+  showCard(clickedPin);
+});
