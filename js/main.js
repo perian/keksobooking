@@ -25,11 +25,23 @@ const mapFilterContainer = document.querySelector(`.map__filters-container`);
 const map = document.querySelector(`.map`);
 const mapWidth = map.offsetWidth;
 
-const HouseType = {
-  palace: `Дворец`,
-  flat: `Квартира`,
-  house: `Дом`,
-  bungalow: `Бунгало`,
+const HouseData = {
+  palace: {
+    name: `Дворец`,
+    minPrice: 10000,
+  },
+  flat: {
+    name: `Квартира`,
+    minPrice: 1000,
+  },
+  house: {
+    name: `Дом`,
+    minPrice: 5000,
+  },
+  bungalow: {
+    name: `Бунгало`,
+    minPrice: 10000,
+  },
 };
 
 const getRandomArrayElement = (array) => {
@@ -130,7 +142,7 @@ const createCard = (card) => {
   newCard.querySelector(`.popup__title`).textContent = card.offer.title;
   newCard.querySelector(`.popup__text--address`).textContent = card.offer.address;
   newCard.querySelector(`.popup__text--price`).textContent = `${card.offer.price}₽/ночь`;
-  newCard.querySelector(`.popup__type`).textContent = HouseType[card.offer.type];
+  newCard.querySelector(`.popup__type`).textContent = HouseData[card.offer.type].name;
   newCard.querySelector(`.popup__text--capacity`).textContent = `${card.offer.rooms} комнаты для ${card.offer.guests} гостей`;
   newCard.querySelector(`.popup__text--time`).textContent = `Заезд после ` + card.offer.checkin + `, выезд до ` + card.offer.checkout;
 
@@ -237,44 +249,6 @@ const setAddressValue = () => {
   address.value = `${coneX} ` + `${coneY}`;
 };
 
-
-// Валидация соответствия гостей и комнат
-
-const roomCapacity = notificationForm.querySelector(`#capacity`);
-const roomNumbers = notificationForm.querySelector(`#room_number`);
-const NOT_FOR_GUESTS = 0;
-const HUNDRED_ROOMS = 100;
-
-const checkRoomsCapacity = () => {
-  roomCapacity.invalid = true;
-  roomCapacity.reportValidity();
-
-  let roomNumbersAmount = parseInt(roomNumbers.value, 10);
-  let roomCapacityAmount = parseInt(roomCapacity.value, 10);
-
-  if ((roomNumbersAmount < HUNDRED_ROOMS) && (roomCapacityAmount === NOT_FOR_GUESTS)) {
-    roomCapacity.setCustomValidity(`Заселите хоть кого-нибудь!`);
-  } else if (((roomNumbersAmount === HUNDRED_ROOMS)) && (roomCapacityAmount > NOT_FOR_GUESTS)) {
-    roomCapacity.setCustomValidity(`Не для гостей`);
-  } else if (roomNumbersAmount < roomCapacityAmount) {
-    roomCapacity.setCustomValidity(`Максимум гостей ${roomNumbersAmount}`);
-  } else {
-    roomCapacity.valid = true;
-    roomCapacity.setCustomValidity(``);
-  }
-};
-
-roomNumbers.addEventListener(`change`, () => {
-  checkRoomsCapacity();
-});
-
-roomCapacity.addEventListener(`change`, () => {
-  checkRoomsCapacity();
-});
-
-checkRoomsCapacity();
-
-
 // Создаем и отрисовываем карточку , по клику на обьявление
 const openCard = (evt) => {
   if (!(evt.target.matches(`.map__pin--main`))) {
@@ -316,6 +290,60 @@ const closeCard = () => {
   map.querySelector(`.map__card`, `popup`).remove();
 };
 
-// map.addEventListener(`click`, (evt) => {
-//   console.log(evt.target);
-// });
+
+// Валидация соответствия полей "Количество мест" и "Количество комнат"
+const roomCapacity = notificationForm.querySelector(`#capacity`);
+const roomNumbers = notificationForm.querySelector(`#room_number`);
+const NOT_FOR_GUESTS = 0;
+const HUNDRED_ROOMS = 100;
+
+const checkRoomsCapacity = () => {
+  roomCapacity.invalid = true;
+  roomCapacity.reportValidity();
+
+  let roomNumbersAmount = parseInt(roomNumbers.value, 10);
+  let roomCapacityAmount = parseInt(roomCapacity.value, 10);
+
+  if ((roomNumbersAmount < HUNDRED_ROOMS) && (roomCapacityAmount === NOT_FOR_GUESTS)) {
+    roomCapacity.setCustomValidity(`Заселите хоть кого-нибудь!`);
+  } else if (((roomNumbersAmount === HUNDRED_ROOMS)) && (roomCapacityAmount > NOT_FOR_GUESTS)) {
+    roomCapacity.setCustomValidity(`Не для гостей`);
+  } else if (roomNumbersAmount < roomCapacityAmount) {
+    roomCapacity.setCustomValidity(`Максимум гостей ${roomNumbersAmount}`);
+  } else {
+    roomCapacity.valid = true;
+    roomCapacity.setCustomValidity(``);
+  }
+};
+
+roomNumbers.addEventListener(`change`, () => {
+  checkRoomsCapacity();
+});
+
+roomCapacity.addEventListener(`change`, () => {
+  checkRoomsCapacity();
+});
+
+checkRoomsCapacity();
+
+// Валидация соответствия полей "Тип жилья" и "Цена за ночь"
+const houseType = notificationForm.querySelector(`#type`);
+const housePrice = notificationForm.querySelector(`#price`);
+
+houseType.addEventListener(`change`, () => {
+  let houseTypeValue = houseType.value;
+  housePrice.setAttribute(`min`, HouseData[houseTypeValue].minPrice);
+  housePrice.setAttribute(`placeholder`, HouseData[houseTypeValue].minPrice);
+  housePrice.reportValidity();
+});
+
+// Валидация соответствия полей "Время заезда" и "Время выезда"
+const moveInTime = notificationForm.querySelector(`#timein`);
+const moveOutTime = notificationForm.querySelector(`#timeout`);
+
+moveInTime.addEventListener(`change`, () => {
+  moveOutTime.value = moveInTime.value;
+});
+moveOutTime.addEventListener(`change`, () => {
+  moveInTime.value = moveOutTime.value;
+});
