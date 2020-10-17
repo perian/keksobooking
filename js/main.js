@@ -40,7 +40,7 @@ const HouseData = {
   },
   bungalow: {
     name: `Бунгало`,
-    minPrice: 10000,
+    minPrice: 0,
   },
 };
 
@@ -326,6 +326,7 @@ roomCapacity.addEventListener(`change`, () => {
 
 checkRoomsCapacity();
 
+
 // Валидация соответствия полей "Тип жилья" и "Цена за ночь"
 const houseType = notificationForm.querySelector(`#type`);
 const housePrice = notificationForm.querySelector(`#price`);
@@ -336,6 +337,7 @@ houseType.addEventListener(`change`, () => {
   housePrice.setAttribute(`placeholder`, HouseData[houseTypeValue].minPrice);
   housePrice.reportValidity();
 });
+
 
 // Валидация соответствия полей "Время заезда" и "Время выезда"
 const moveInTime = notificationForm.querySelector(`#timein`);
