@@ -19,6 +19,8 @@ const AD_LOCATION_MIN_Y = 130;
 const AD_LOCATION_MAX_Y = 630;
 const AD_PHOTO_WIDTH = 45;
 const AD_PHOTO_HEIGHT = 40;
+const NOT_FOR_GUESTS = 0;
+const HUNDRED_ROOMS = 100;
 const pinTemplate = document.querySelector(`#pin`).content.querySelector(`.map__pin`);
 const cardTemplate = document.querySelector(`#card`).content.querySelector(`.map__card`);
 const mapFilterContainer = document.querySelector(`.map__filters-container`);
@@ -123,9 +125,9 @@ const activateMap = () => {
 
   mapPins.appendChild(fragment);
 
-  isDisableAttribute(notificationFieldsets, false);
-  isDisableAttribute(mapFiltersFieldsets, false);
-  isDisableAttribute(mapFiltersSelects, false);
+  toggleFormElementState(notificationFieldsets, false);
+  toggleFormElementState(mapFiltersFieldsets, false);
+  toggleFormElementState(mapFiltersSelects, false);
 
   notificationForm.classList.remove(`ad-form--disabled`);
   showCard(0);
@@ -204,15 +206,15 @@ const notificationFieldsets = notificationForm.querySelectorAll(`fieldset`);
 const mapFiltersFieldsets = mapFilterContainer.querySelectorAll(`fieldset`);
 const mapFiltersSelects = mapFilterContainer.querySelectorAll(`select`);
 
-const isDisableAttribute = (domElement, exist) => {
-  domElement.forEach((value) => {
-    value.disabled = exist;
+const toggleFormElementState = (domElements, state) => {
+  domElements.forEach((value) => {
+    value.disabled = state;
   });
 };
 
-isDisableAttribute(notificationFieldsets, true);
-isDisableAttribute(mapFiltersFieldsets, true);
-isDisableAttribute(mapFiltersSelects, true);
+toggleFormElementState(notificationFieldsets, true);
+toggleFormElementState(mapFiltersFieldsets, true);
+toggleFormElementState(mapFiltersSelects, true);
 
 
 // Первое взаимодействие с меткой переводит страницу в активное состояние
@@ -246,30 +248,28 @@ const setAddressValue = () => {
   const coneX = Math.round(transformPropertyToInteger(mainPinX) + (mainPinWidth / 2));
   const coneY = Math.round(transformPropertyToInteger(mainPinY) + mainPinHeight + transformPropertyToInteger(coneHeight));
 
-  address.value = `${coneX} ` + `${coneY}`;
+  address.value = `${coneX}, ` + `${coneY}`;
 };
+setAddressValue();
+
 
 // Создаем и отрисовываем карточку , по клику на обьявление
 const openCard = (evt) => {
-  if (!(evt.target.matches(`.map__pin--main`))) {
-    if (document.querySelector(`.map__card`)) {
-      document.querySelector(`.map__card`).remove();
-    }
-    const clickedPin = evt.target.dataset.number;
-    showCard(clickedPin);
+  if (document.querySelector(`.map__card`)) {
+    document.querySelector(`.map__card`).remove();
   }
+  const clickedPin = evt.target.dataset.number;
+  showCard(clickedPin);
 };
 
 mapPins.addEventListener(`click`, (evt) => {
-  if (evt.target.matches(`img`)
-  && !(evt.target.parentNode.matches(`.map__pin--main`))) {
+  if (evt.target.matches(`img`) && !(evt.target.parentNode.matches(`.map__pin--main`))) {
     openCard(evt);
   }
 });
 
 mapPins.addEventListener(`keydown`, (evt) => {
-  if (evt.key === `Enter`
-  && evt.target.matches(`.map__pin`)) {
+  if (evt.key === `Enter` && evt.target.matches(`.map__pin`) && !(evt.target.matches(`.map__pin--main`))) {
     openCard(evt);
   }
 });
@@ -294,8 +294,6 @@ const closeCard = () => {
 // Валидация соответствия полей "Количество мест" и "Количество комнат"
 const roomCapacity = notificationForm.querySelector(`#capacity`);
 const roomNumbers = notificationForm.querySelector(`#room_number`);
-const NOT_FOR_GUESTS = 0;
-const HUNDRED_ROOMS = 100;
 
 const checkRoomsCapacity = () => {
   roomCapacity.invalid = true;
