@@ -17,22 +17,20 @@ const MAX_GUEST = 3;
 const AD_LOCATION_MIN_X = 0;
 const AD_LOCATION_MIN_Y = 130;
 const AD_LOCATION_MAX_Y = 630;
-// const AD_PHOTO_WIDTH = 45;
-// const AD_PHOTO_HEIGHT = 40;
-const NOT_FOR_GUESTS = 0;
-const HUNDRED_ROOMS = 100;
+const AD_PHOTO_WIDTH = 45;
+const AD_PHOTO_HEIGHT = 40;
 const pinTemplate = document.querySelector(`#pin`).content.querySelector(`.map__pin`);
-// const cardTemplate = document.querySelector(`#card`).content.querySelector(`.map__card`);
+const cardTemplate = document.querySelector(`#card`).content.querySelector(`.map__card`);
 const mapFilterContainer = document.querySelector(`.map__filters-container`);
 const map = document.querySelector(`.map`);
 const mapWidth = map.offsetWidth;
 
-// const HouseType = {
-//   palace: `Дворец`,
-//   flat: `Квартира`,
-//   house: `Дом`,
-//   bungalow: `Бунгало`,
-// };
+const HouseType = {
+  palace: `Дворец`,
+  flat: `Квартира`,
+  house: `Дом`,
+  bungalow: `Бунгало`,
+};
 
 const getRandomArrayElement = (array) => {
   const randomInt = getRandomInt(0, array.length - 1);
@@ -49,8 +47,6 @@ const getRandomArrayLength = (array) => {
   const newArrayLength = getRandomInt(0, array.length);
   return array.slice(0, newArrayLength);
 };
-
-let pinDatasetNumber = 0;
 
 const createAds = (amount) => {
   const newAds = [];
@@ -93,12 +89,13 @@ const dataArray = createAds(ADS_AMOUNT);
 
 const createPin = (pin) => {
   const newPin = pinTemplate.cloneNode(true);
-  const image = newPin.querySelector(`img`);
+  const pinImage = newPin.querySelector(`img`);
   newPin.style.left = pin.location.x - PIN_POINTER_X + `px`;
   newPin.style.top = pin.location.y - PIN_POINTER_Y + `px`;
-  image.src = pin.author.avatar;
-  image.alt = pin.offer.title;
-  image.dataset.number = pin.offer.popupNumber;
+  pinImage.src = pin.author.avatar;
+  pinImage.alt = pin.offer.title;
+  pinImage.dataset.number = pin.offer.popupNumber;
+  newPin.dataset.number = pin.offer.popupNumber;
   return newPin;
 };
 
@@ -114,11 +111,12 @@ const activateMap = () => {
 
   mapPins.appendChild(fragment);
 
-  toggleFormElementsState(notificationFieldsets, false);
-  toggleFormElementsState(mapFiltersFieldsets, false);
-  toggleFormElementsState(mapFiltersSelects, false);
+  isDisableAttribute(notificationFieldsets, false);
+  isDisableAttribute(mapFiltersFieldsets, false);
+  isDisableAttribute(mapFiltersSelects, false);
 
   notificationForm.classList.remove(`ad-form--disabled`);
+  showCard(0);
 };
 
 
@@ -186,7 +184,7 @@ const createCard = (card) => {
 const showCard = (cardNumber) => {
   map.insertBefore(fragment.appendChild(createCard(dataArray[cardNumber])), mapFilterContainer);
 };
-showCard();
+
 
 // Неактивное состояние страницы
 const notificationForm = document.querySelector(`.ad-form`);
@@ -194,15 +192,15 @@ const notificationFieldsets = notificationForm.querySelectorAll(`fieldset`);
 const mapFiltersFieldsets = mapFilterContainer.querySelectorAll(`fieldset`);
 const mapFiltersSelects = mapFilterContainer.querySelectorAll(`select`);
 
-const toggleFormElementsState = (domElements, state) => {
-  domElements.forEach((value) => {
-    value.disabled = state;
+const isDisableAttribute = (domElement, exist) => {
+  domElement.forEach((value) => {
+    value.disabled = exist;
   });
 };
 
-toggleFormElementsState(notificationFieldsets, true);
-toggleFormElementsState(mapFiltersFieldsets, true);
-toggleFormElementsState(mapFiltersSelects, true);
+isDisableAttribute(notificationFieldsets, true);
+isDisableAttribute(mapFiltersFieldsets, true);
+isDisableAttribute(mapFiltersSelects, true);
 
 
 // Первое взаимодействие с меткой переводит страницу в активное состояние
@@ -211,6 +209,8 @@ const onEnterMouseClickActivateMap = (evt) => {
   if (evt.button === 0 || evt.key === `Enter`) {
     activateMap();
   }
+
+  setAddressValue();
 
   mainPin.removeEventListener(`mousedown`, onEnterMouseClickActivateMap);
   mainPin.removeEventListener(`keydown`, onEnterMouseClickActivateMap);
@@ -230,34 +230,33 @@ const transformPropertyToInteger = (property) => {
   return parseInt(property.replace(`px`, ``), 10);
 };
 
-// Находит координаты острия пина и добавляет их в поле ввода адресса
 const setAddressValue = () => {
   const coneX = Math.round(transformPropertyToInteger(mainPinX) + (mainPinWidth / 2));
   const coneY = Math.round(transformPropertyToInteger(mainPinY) + mainPinHeight + transformPropertyToInteger(coneHeight));
 
-  address.value = `${coneX}, ` + `${coneY}`;
+  address.value = `${coneX} ` + `${coneY}`;
 };
-setAddressValue();
 
 
 // Валидация соответствия гостей и комнат
+
 const roomCapacity = notificationForm.querySelector(`#capacity`);
 const roomNumbers = notificationForm.querySelector(`#room_number`);
+const NOT_FOR_GUESTS = 0;
+const HUNDRED_ROOMS = 100;
 
 const checkRoomsCapacity = () => {
+  roomCapacity.invalid = true;
   roomCapacity.reportValidity();
 
   let roomNumbersAmount = parseInt(roomNumbers.value, 10);
   let roomCapacityAmount = parseInt(roomCapacity.value, 10);
 
   if ((roomNumbersAmount < HUNDRED_ROOMS) && (roomCapacityAmount === NOT_FOR_GUESTS)) {
-    roomCapacity.invalid = true;
     roomCapacity.setCustomValidity(`Заселите хоть кого-нибудь!`);
   } else if (((roomNumbersAmount === HUNDRED_ROOMS)) && (roomCapacityAmount > NOT_FOR_GUESTS)) {
-    roomCapacity.invalid = true;
     roomCapacity.setCustomValidity(`Не для гостей`);
   } else if (roomNumbersAmount < roomCapacityAmount) {
-    roomCapacity.invalid = true;
     roomCapacity.setCustomValidity(`Максимум гостей ${roomNumbersAmount}`);
   } else {
     roomCapacity.valid = true;
@@ -276,16 +275,47 @@ roomCapacity.addEventListener(`change`, () => {
 checkRoomsCapacity();
 
 
-activateMap();
-// let popup = map.querySelector(`.popup`);
+// Создаем и отрисовываем карточку , по клику на обьявление
+const openCard = (evt) => {
+  if (!(evt.target.matches(`.map__pin--main`))) {
+    if (document.querySelector(`.map__card`)) {
+      document.querySelector(`.map__card`).remove();
+    }
+    const clickedPin = evt.target.dataset.number;
+    showCard(clickedPin);
+  }
+};
 
 mapPins.addEventListener(`click`, (evt) => {
-  const popup = map.querySelector(`.popup`);
-  if (popup) {
-    popup.remove();
+  if (evt.target.matches(`img`)
+  && !(evt.target.parentNode.matches(`.map__pin--main`))) {
+    openCard(evt);
   }
-  const clickedPin = evt.target.dataset.number;
-
-  map.insertBefore(fragment.appendChild(createCard(dataArray[clickedPin])), mapFilterContainer);
-  showCard(clickedPin);
 });
+
+mapPins.addEventListener(`keydown`, (evt) => {
+  if (evt.key === `Enter`
+  && evt.target.matches(`.map__pin`)) {
+    openCard(evt);
+  }
+});
+
+map.addEventListener(`click`, (evt) => {
+  if (evt.target.matches(`.popup__close`)) {
+    closeCard();
+  }
+});
+
+map.addEventListener(`keydown`, (evt) => {
+  if ((evt.key === `Escape`) || (evt.key === `Enter` && evt.target.matches(`.popup__close`))) {
+    closeCard();
+  }
+});
+
+const closeCard = () => {
+  map.querySelector(`.map__card`, `popup`).remove();
+};
+
+// map.addEventListener(`click`, (evt) => {
+//   console.log(evt.target);
+// });
