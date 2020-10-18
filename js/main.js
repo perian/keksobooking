@@ -19,17 +19,31 @@ const AD_LOCATION_MIN_Y = 130;
 const AD_LOCATION_MAX_Y = 630;
 const AD_PHOTO_WIDTH = 45;
 const AD_PHOTO_HEIGHT = 40;
+const NOT_FOR_GUESTS = 0;
+const HUNDRED_ROOMS = 100;
 const pinTemplate = document.querySelector(`#pin`).content.querySelector(`.map__pin`);
 const cardTemplate = document.querySelector(`#card`).content.querySelector(`.map__card`);
 const mapFilterContainer = document.querySelector(`.map__filters-container`);
 const map = document.querySelector(`.map`);
 const mapWidth = map.offsetWidth;
 
-const HouseType = {
-  palace: `Дворец`,
-  flat: `Квартира`,
-  house: `Дом`,
-  bungalow: `Бунгало`,
+const HouseData = {
+  palace: {
+    name: `Дворец`,
+    minPrice: 10000,
+  },
+  flat: {
+    name: `Квартира`,
+    minPrice: 1000,
+  },
+  house: {
+    name: `Дом`,
+    minPrice: 5000,
+  },
+  bungalow: {
+    name: `Бунгало`,
+    minPrice: 0,
+  },
 };
 
 const getRandomArrayElement = (array) => {
@@ -71,6 +85,7 @@ const createAds = (amount) => {
         features: getRandomArrayLength(FEAUTURES),
         description: `Вы захотите сюда вернуться!`,
         photos: getRandomArrayLength(PHOTOS),
+        popupNumber: i,
       },
       location: {
         x: AD_LOCATION_X,
@@ -86,19 +101,20 @@ const createAds = (amount) => {
 
 const dataArray = createAds(ADS_AMOUNT);
 
-
 const createPin = (pin) => {
   const newPin = pinTemplate.cloneNode(true);
-  const image = newPin.querySelector(`img`);
+  const pinImage = newPin.querySelector(`img`);
   newPin.style.left = pin.location.x - PIN_POINTER_X + `px`;
   newPin.style.top = pin.location.y - PIN_POINTER_Y + `px`;
-  image.src = pin.author.avatar;
-  image.alt = pin.offer.title;
-
+  pinImage.src = pin.author.avatar;
+  pinImage.alt = pin.offer.title;
+  pinImage.dataset.number = pin.offer.popupNumber;
+  newPin.dataset.number = pin.offer.popupNumber;
   return newPin;
 };
 
 const fragment = document.createDocumentFragment();
+const mapPins = document.querySelector(`.map__pins`);
 
 const activateMap = () => {
   map.classList.remove(`map--faded`);
@@ -107,17 +123,17 @@ const activateMap = () => {
     fragment.appendChild(createPin(dataArray[i]));
   }
 
-  const mapPins = document.querySelector(`.map__pins`);
   mapPins.appendChild(fragment);
 
-  isDisableAttribute(notificationFieldsets, false);
-  isDisableAttribute(mapFiltersFieldsets, false);
-  isDisableAttribute(mapFiltersSelects, false);
+  toggleFormElementState(notificationFieldsets, false);
+  toggleFormElementState(mapFiltersFieldsets, false);
+  toggleFormElementState(mapFiltersSelects, false);
 
   notificationForm.classList.remove(`ad-form--disabled`);
+  showCard(0);
 };
 
-/**
+
 const createCard = (card) => {
   const newCard = cardTemplate.cloneNode(true);
   const popupFeatures = newCard.querySelector(`.popup__features`);
@@ -128,7 +144,7 @@ const createCard = (card) => {
   newCard.querySelector(`.popup__title`).textContent = card.offer.title;
   newCard.querySelector(`.popup__text--address`).textContent = card.offer.address;
   newCard.querySelector(`.popup__text--price`).textContent = `${card.offer.price}₽/ночь`;
-  newCard.querySelector(`.popup__type`).textContent = HouseType[card.offer.type];
+  newCard.querySelector(`.popup__type`).textContent = HouseData[card.offer.type].name;
   newCard.querySelector(`.popup__text--capacity`).textContent = `${card.offer.rooms} комнаты для ${card.offer.guests} гостей`;
   newCard.querySelector(`.popup__text--time`).textContent = `Заезд после ` + card.offer.checkin + `, выезд до ` + card.offer.checkout;
 
@@ -178,8 +194,10 @@ const createCard = (card) => {
 };
 
 // Создаем и добавляем карточку обьявления на основе первого элемента из массива обьявлений
-map.insertBefore(fragment.appendChild(createCard(dataArray[0])), mapFilterContainer);
-*/
+
+const showCard = (cardNumber) => {
+  map.insertBefore(fragment.appendChild(createCard(dataArray[cardNumber])), mapFilterContainer);
+};
 
 
 // Неактивное состояние страницы
@@ -188,15 +206,15 @@ const notificationFieldsets = notificationForm.querySelectorAll(`fieldset`);
 const mapFiltersFieldsets = mapFilterContainer.querySelectorAll(`fieldset`);
 const mapFiltersSelects = mapFilterContainer.querySelectorAll(`select`);
 
-const isDisableAttribute = (domElement, exist) => {
-  domElement.forEach((value) => {
-    value.disabled = exist;
+const toggleFormElementState = (domElements, state) => {
+  domElements.forEach((value) => {
+    value.disabled = state;
   });
 };
 
-isDisableAttribute(notificationFieldsets, true);
-isDisableAttribute(mapFiltersFieldsets, true);
-isDisableAttribute(mapFiltersSelects, true);
+toggleFormElementState(notificationFieldsets, true);
+toggleFormElementState(mapFiltersFieldsets, true);
+toggleFormElementState(mapFiltersSelects, true);
 
 
 // Первое взаимодействие с меткой переводит страницу в активное состояние
@@ -230,16 +248,52 @@ const setAddressValue = () => {
   const coneX = Math.round(transformPropertyToInteger(mainPinX) + (mainPinWidth / 2));
   const coneY = Math.round(transformPropertyToInteger(mainPinY) + mainPinHeight + transformPropertyToInteger(coneHeight));
 
-  address.value = `${coneX} ` + `${coneY}`;
+  address.value = `${coneX}, ` + `${coneY}`;
+};
+setAddressValue();
+
+
+// Создаем и отрисовываем карточку , по клику на обьявление
+const openCard = (evt) => {
+  if (document.querySelector(`.map__card`)) {
+    document.querySelector(`.map__card`).remove();
+  }
+  const clickedPin = evt.target.dataset.number;
+  showCard(clickedPin);
+};
+
+mapPins.addEventListener(`click`, (evt) => {
+  if (evt.target.matches(`img`) && !(evt.target.parentNode.matches(`.map__pin--main`))) {
+    openCard(evt);
+  }
+});
+
+mapPins.addEventListener(`keydown`, (evt) => {
+  if (evt.key === `Enter` && evt.target.matches(`.map__pin`) && !(evt.target.matches(`.map__pin--main`))) {
+    openCard(evt);
+  }
+});
+
+map.addEventListener(`click`, (evt) => {
+  if (evt.target.matches(`.popup__close`)) {
+    closeCard();
+  }
+});
+
+map.addEventListener(`keydown`, (evt) => {
+  if ((evt.key === `Escape`) || (evt.key === `Enter` && evt.target.matches(`.popup__close`))) {
+    closeCard();
+  }
+});
+
+const closeCard = () => {
+  map.querySelector(`.map__card`, `popup`).remove();
 };
 
 
-// Валидация соответствия гостей и комнат
-
+// Валидация соответствия полей "Количество мест" и "Количество комнат"
 const roomCapacity = notificationForm.querySelector(`#capacity`);
 const roomNumbers = notificationForm.querySelector(`#room_number`);
-const NOT_FOR_GUESTS = 0;
-const HUNDRED_ROOMS = 100;
 
 const checkRoomsCapacity = () => {
   roomCapacity.invalid = true;
@@ -269,3 +323,27 @@ roomCapacity.addEventListener(`change`, () => {
 });
 
 checkRoomsCapacity();
+
+
+// Валидация соответствия полей "Тип жилья" и "Цена за ночь"
+const houseType = notificationForm.querySelector(`#type`);
+const housePrice = notificationForm.querySelector(`#price`);
+
+houseType.addEventListener(`change`, () => {
+  let houseTypeValue = houseType.value;
+  housePrice.setAttribute(`min`, HouseData[houseTypeValue].minPrice);
+  housePrice.setAttribute(`placeholder`, HouseData[houseTypeValue].minPrice);
+  housePrice.reportValidity();
+});
+
+
+// Валидация соответствия полей "Время заезда" и "Время выезда"
+const moveInTime = notificationForm.querySelector(`#timein`);
+const moveOutTime = notificationForm.querySelector(`#timeout`);
+
+moveInTime.addEventListener(`change`, () => {
+  moveOutTime.value = moveInTime.value;
+});
+moveOutTime.addEventListener(`change`, () => {
+  moveInTime.value = moveOutTime.value;
+});
