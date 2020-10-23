@@ -1,12 +1,17 @@
 "use strict";
 
 (function () {
+  const showCard = (id) => {
+    window.main.map.insertBefore(window.main.fragment.appendChild(window.card.createCard(window.data.dataArray[id])), window.main.mapFilterContainer);
+  };
+
+
   const openCard = (evt) => {
     if (document.querySelector(`.map__card`)) {
       document.querySelector(`.map__card`).remove();
     }
-    const clickedPin = evt.target.dataset.number;
-    window.card.showCard(clickedPin);
+    const clickedPin = evt.target.dataset.id;
+    showCard(clickedPin);
   };
 
   window.main.mapPins.addEventListener(`click`, (evt) => {
@@ -34,6 +39,6 @@
   });
 
   const closeCard = () => {
-    window.main.map.querySelector(`.map__card`, `popup`).remove();
+    window.main.map.querySelector(`.map__card`).remove();
   };
 })();

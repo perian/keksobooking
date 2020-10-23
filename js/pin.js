@@ -14,8 +14,8 @@
     newPin.style.top = pin.location.y - PIN_POINTER_Y + `px`;
     pinImage.src = pin.author.avatar;
     pinImage.alt = pin.offer.title;
-    pinImage.dataset.number = pin.offer.popupNumber;
-    newPin.dataset.number = pin.offer.popupNumber;
+    pinImage.dataset.id = pin.offer.id;
+    newPin.dataset.id = pin.offer.id;
     return newPin;
   };
 

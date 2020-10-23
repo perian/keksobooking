@@ -36,17 +36,24 @@
 
   checkRoomsCapacity();
 
+  const adTitle = window.main.notificationForm.querySelector(`#title`);
+  adTitle.addEventListener(`change`, () => {
+    adTitle.reportValidity();
+  });
 
   // Валидация соответствия полей "Тип жилья" и "Цена за ночь"
   const houseType = window.main.notificationForm.querySelector(`#type`);
   const housePrice = window.main.notificationForm.querySelector(`#price`);
 
-  houseType.addEventListener(`change`, () => {
-    let houseTypeValue = houseType.value;
+  const checkHousePriceValidity = () => {
+    const houseTypeValue = houseType.value;
     housePrice.setAttribute(`min`, window.main.HouseData[houseTypeValue].minPrice);
     housePrice.setAttribute(`placeholder`, window.main.HouseData[houseTypeValue].minPrice);
     housePrice.reportValidity();
-  });
+  };
+
+  houseType.addEventListener(`change`, checkHousePriceValidity);
+  housePrice.addEventListener(`change`, checkHousePriceValidity);
 
 
   // Валидация соответствия полей "Время заезда" и "Время выезда"

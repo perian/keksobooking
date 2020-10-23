@@ -4,8 +4,8 @@
   const activateMap = () => {
     window.main.map.classList.remove(`map--faded`);
 
-    for (let i = 0; i < window.main.dataArray.length; i++) {
-      window.main.fragment.appendChild(window.pin.createPin(window.main.dataArray[i]));
+    for (let i = 0; i < window.data.dataArray.length; i++) {
+      window.main.fragment.appendChild(window.pin.createPin(window.data.dataArray[i]));
     }
 
     window.main.mapPins.appendChild(window.main.fragment);
@@ -15,7 +15,6 @@
     toggleFormElementState(mapFiltersSelects, false);
 
     window.main.notificationForm.classList.remove(`ad-form--disabled`);
-    window.card.showCard(0);
   };
 
   const notificationFieldsets = window.main.notificationForm.querySelectorAll(`fieldset`);

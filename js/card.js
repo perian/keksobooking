@@ -63,13 +63,7 @@
 
     return newCard;
   };
-
-  const showCard = (cardNumber) => {
-    window.main.map.insertBefore(window.map.fragment.appendChild(window.card.createCard(window.main.dataArray[cardNumber])), window.map.mapFilterContainer);
-  };
-
   window.card = {
     createCard,
-    showCard,
   };
 })();

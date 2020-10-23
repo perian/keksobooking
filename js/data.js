@@ -39,7 +39,7 @@
           features: window.main.getRandomArrayLength(FEAUTURES),
           description: `Вы захотите сюда вернуться!`,
           photos: window.main.getRandomArrayLength(PHOTOS),
-          popupNumber: i,
+          id: i,
         },
         location: {
           x: AD_LOCATION_X,
