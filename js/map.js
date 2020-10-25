@@ -1,44 +1,58 @@
 "use strict";
 
 (function () {
-  const showCard = (id) => {
-    window.main.map.insertBefore(window.main.fragment.appendChild(window.card.createCard(window.data.dataArray[id])), window.main.mapFilterContainer);
+  const MAIN_CLICK = 0;
+  const map = document.querySelector(`.map`);
+  const mainPin = map.querySelector(`.map__pin--main`);
+  const pins = document.querySelector(`.map__pins`);
+  const fragment = document.createDocumentFragment();
+  const filterContainer = document.querySelector(`.map__filters-container`);
+  const filtersFieldsets = filterContainer.querySelectorAll(`fieldset`);
+  const filtersSelects = filterContainer.querySelectorAll(`select`);
+
+  const toggleFormElementState = (domElements, state) => {
+    domElements.forEach((value) => {
+      value.disabled = state;
+    });
   };
 
+  toggleFormElementState(filtersFieldsets, true);
+  toggleFormElementState(filtersSelects, true);
 
-  const openCard = (evt) => {
-    if (document.querySelector(`.map__card`)) {
-      document.querySelector(`.map__card`).remove();
+  const activateMap = () => {
+    map.classList.remove(`map--faded`);
+
+    for (let i = 0; i < window.data.dataArray.length; i++) {
+      fragment.appendChild(window.createPin(window.data.dataArray[i]));
     }
-    const clickedPin = evt.target.dataset.id;
-    showCard(clickedPin);
+
+    pins.appendChild(fragment);
+
+    toggleFormElementState(window.form.notificationFieldsets, false);
+    toggleFormElementState(filtersFieldsets, false);
+    toggleFormElementState(filtersSelects, false);
+
+    window.form.notification.classList.remove(`ad-form--disabled`);
   };
 
-  window.main.mapPins.addEventListener(`click`, (evt) => {
-    if (evt.target.matches(`img`) && !(evt.target.parentNode.matches(`.map__pin--main`))) {
-      openCard(evt);
+  const onPinPushActivateMap = (evt) => {
+    if (evt.button === MAIN_CLICK || evt.key === `Enter`) {
+      activateMap();
     }
-  });
 
-  window.main.mapPins.addEventListener(`keydown`, (evt) => {
-    if (evt.key === `Enter` && evt.target.matches(`.map__pin`) && !(evt.target.matches(`.map__pin--main`))) {
-      openCard(evt);
-    }
-  });
+    mainPin.removeEventListener(`mousedown`, onPinPushActivateMap);
+    mainPin.removeEventListener(`keydown`, onPinPushActivateMap);
+  };
 
-  window.main.map.addEventListener(`click`, (evt) => {
-    if (evt.target.matches(`.popup__close`)) {
-      closeCard();
-    }
-  });
+  mainPin.addEventListener(`mousedown`, onPinPushActivateMap);
+  mainPin.addEventListener(`keydown`, onPinPushActivateMap);
 
-  window.main.map.addEventListener(`keydown`, (evt) => {
-    if ((evt.key === `Escape`) || (evt.key === `Enter` && evt.target.matches(`.popup__close`))) {
-      closeCard();
-    }
-  });
-
-  const closeCard = () => {
-    window.main.map.querySelector(`.map__card`).remove();
+  window.map = {
+    domElement: map,
+    pins,
+    fragment,
+    mainPin,
+    filterContainer,
+    toggleFormElementState,
   };
 })();

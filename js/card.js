@@ -15,7 +15,7 @@
     newCard.querySelector(`.popup__title`).textContent = card.offer.title;
     newCard.querySelector(`.popup__text--address`).textContent = card.offer.address;
     newCard.querySelector(`.popup__text--price`).textContent = `${card.offer.price}₽/ночь`;
-    newCard.querySelector(`.popup__type`).textContent = window.main.HouseData[card.offer.type].name;
+    newCard.querySelector(`.popup__type`).textContent = window.data.HouseParameters[card.offer.type].name;
     newCard.querySelector(`.popup__text--capacity`).textContent = `${card.offer.rooms} комнаты для ${card.offer.guests} гостей`;
     newCard.querySelector(`.popup__text--time`).textContent = `Заезд после ` + card.offer.checkin + `, выезд до ` + card.offer.checkout;
 
@@ -63,7 +63,47 @@
 
     return newCard;
   };
-  window.card = {
-    createCard,
+
+  // Открытие/закрытие карточки обьявления, после нажатия на пин
+  const showCard = (id) => {
+    window.map.domElement.insertBefore(window.map.fragment.appendChild(window.createCard(window.data.dataArray[id])), window.map.filterContainer);
   };
+
+  const openCard = (evt) => {
+    if (document.querySelector(`.map__card`)) {
+      document.querySelector(`.map__card`).remove();
+    }
+    const clickedPin = evt.target.dataset.id;
+    showCard(clickedPin);
+  };
+
+  window.map.pins.addEventListener(`click`, (evt) => {
+    if (evt.target.matches(`img`) && !(evt.target.parentNode.matches(`.map__pin--main`))) {
+      openCard(evt);
+    }
+  });
+
+  window.map.pins.addEventListener(`keydown`, (evt) => {
+    if (evt.key === `Enter` && evt.target.matches(`.map__pin`) && !(evt.target.matches(`.map__pin--main`))) {
+      openCard(evt);
+    }
+  });
+
+  window.map.domElement.addEventListener(`click`, (evt) => {
+    if (evt.target.matches(`.popup__close`)) {
+      closeCard();
+    }
+  });
+
+  window.map.domElement.addEventListener(`keydown`, (evt) => {
+    if ((evt.key === `Escape`) || (evt.key === `Enter` && evt.target.matches(`.popup__close`))) {
+      closeCard();
+    }
+  });
+
+  const closeCard = () => {
+    window.map.domElement.querySelector(`.map__card`).remove();
+  };
+
+  window.createCard = createCard;
 })();

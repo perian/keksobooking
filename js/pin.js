@@ -19,7 +19,5 @@
     return newPin;
   };
 
-  window.pin = {
-    createPin,
-  };
+  window.createPin = createPin;
 })();
