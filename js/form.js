@@ -29,7 +29,7 @@
   const roomCapacity = notification.querySelector(`#capacity`);
   const roomNumbers = notification.querySelector(`#room_number`);
 
-  const checkRoomsCapacity = () => {
+  const onCapacitySelectChange = () => {
     roomCapacity.invalid = true;
     roomCapacity.reportValidity();
 
@@ -48,9 +48,9 @@
     }
   };
 
-  roomNumbers.addEventListener(`change`, checkRoomsCapacity);
-  roomCapacity.addEventListener(`change`, checkRoomsCapacity);
-  checkRoomsCapacity();
+  roomNumbers.addEventListener(`change`, onCapacitySelectChange);
+  roomCapacity.addEventListener(`change`, onCapacitySelectChange);
+  onCapacitySelectChange();
 
   // Проверка валидности поля "Заголовок объявления"
   const adTitle = notification.querySelector(`#title`);
@@ -62,15 +62,15 @@
   const houseType = notification.querySelector(`#type`);
   const housePrice = notification.querySelector(`#price`);
 
-  const checkHousePriceValidity = () => {
+  const onPriceInputChange = () => {
     const houseTypeValue = houseType.value;
     housePrice.setAttribute(`min`, window.data.HouseParameters[houseTypeValue].minPrice);
     housePrice.setAttribute(`placeholder`, window.data.HouseParameters[houseTypeValue].minPrice);
     housePrice.reportValidity();
   };
 
-  houseType.addEventListener(`change`, checkHousePriceValidity);
-  housePrice.addEventListener(`change`, checkHousePriceValidity);
+  houseType.addEventListener(`change`, onPriceInputChange);
+  housePrice.addEventListener(`change`, onPriceInputChange);
 
   // Валидация соответствия полей "Время заезда" и "Время выезда"
   const moveInTime = notification.querySelector(`#timein`);

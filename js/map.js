@@ -19,7 +19,7 @@
   toggleFormElementState(filtersFieldsets, true);
   toggleFormElementState(filtersSelects, true);
 
-  const activateMap = () => {
+  const activatePage = () => {
     map.classList.remove(`map--faded`);
 
     for (let i = 0; i < window.data.dataArray.length; i++) {
@@ -35,17 +35,17 @@
     window.form.notification.classList.remove(`ad-form--disabled`);
   };
 
-  const onPinPushActivateMap = (evt) => {
+  const onPinPush = (evt) => {
     if (evt.button === MAIN_CLICK || evt.key === `Enter`) {
-      activateMap();
+      activatePage();
     }
 
-    mainPin.removeEventListener(`mousedown`, onPinPushActivateMap);
-    mainPin.removeEventListener(`keydown`, onPinPushActivateMap);
+    mainPin.removeEventListener(`mousedown`, onPinPush);
+    mainPin.removeEventListener(`keydown`, onPinPush);
   };
 
-  mainPin.addEventListener(`mousedown`, onPinPushActivateMap);
-  mainPin.addEventListener(`keydown`, onPinPushActivateMap);
+  mainPin.addEventListener(`mousedown`, onPinPush);
+  mainPin.addEventListener(`keydown`, onPinPush);
 
   window.map = {
     domElement: map,

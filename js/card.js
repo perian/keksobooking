@@ -66,7 +66,7 @@
 
   // Открытие/закрытие карточки обьявления, после нажатия на пин
   const showCard = (id) => {
-    window.map.domElement.insertBefore(window.map.fragment.appendChild(window.createCard(window.data.dataArray[id])), window.map.filterContainer);
+    window.map.domElement.insertBefore(window.map.fragment.appendChild(createCard(window.data.dataArray[id])), window.map.filterContainer);
   };
 
   const openCard = (evt) => {
@@ -104,6 +104,4 @@
   const closeCard = () => {
     window.map.domElement.querySelector(`.map__card`).remove();
   };
-
-  window.createCard = createCard;
 })();
