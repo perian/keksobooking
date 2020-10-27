@@ -47,11 +47,54 @@
   mainPin.addEventListener(`mousedown`, onPinPush);
   mainPin.addEventListener(`keydown`, onPinPush);
 
+let mainPinX;
+let mainPinY;
+  mainPin.addEventListener(`mousedown`, (evt) => {
+    evt.preventDefault();
+
+    let startCoordinates = {
+      x: evt.clientX,
+      y: evt.clientY,
+    };
+
+    const onMouseMove = (moveEvt) => {
+      moveEvt.preventDefault();
+
+      let shift = {
+        x: startCoordinates.x - moveEvt.clientX,
+        y: startCoordinates.y - moveEvt.clientY,
+      };
+
+      startCoordinates = {
+        x: moveEvt.clientX,
+        y: moveEvt.clientY,
+      };
+
+      mainPinX = (mainPin.offsetLeft - shift.x) + `px`;
+      mainPinY = (mainPin.offsetTop - shift.y) + `px`;
+
+      mainPin.style.left = mainPinX;
+      mainPin.style.top = mainPinY;
+    };
+
+    const onMouseUp = (upEvt) => {
+      upEvt.preventDefault();
+
+      mainPin.removeEventListener(`mouseup`, onMouseUp);
+      mainPin.removeEventListener(`mousemove`, onMouseMove);
+    };
+
+    mainPin.addEventListener(`mouseup`, onMouseUp);
+    mainPin.addEventListener(`mousemove`, onMouseMove);
+  });
+
   window.map = {
     domElement: map,
     pins,
     fragment,
     mainPin,
+    mainPinX,
+    mainPinY,
     filterContainer,
     toggleFormElementState,
   };
