@@ -21,10 +21,17 @@
     return parseInt(property.replace(`px`, ``), 10);
   };
 
+  const toggleFormElementState = (domElements, state) => {
+    domElements.forEach((value) => {
+      value.disabled = state;
+    });
+  };
+
   window.utils = {
     getRandomInt,
     getRandomArrayElement,
     getRandomArrayLength,
     transformPropertyToInteger,
+    toggleFormElementState,
   };
 })();

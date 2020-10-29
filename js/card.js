@@ -64,44 +64,32 @@
     return newCard;
   };
 
-  // Открытие/закрытие карточки обьявления, после нажатия на пин
-  const showCard = (id) => {
-    window.map.domElement.insertBefore(window.map.fragment.appendChild(createCard(window.data.dataArray[id])), window.map.filterContainer);
-  };
-
-  const openCard = (evt) => {
+  const openCard = (id, parentContainer, beforeContainer) => {
     if (document.querySelector(`.map__card`)) {
       document.querySelector(`.map__card`).remove();
     }
-    const clickedPin = evt.target.dataset.id;
-    showCard(clickedPin);
+
+    const targetOffer = window.data.ads[id];
+    const card = createCard(targetOffer);
+
+    parentContainer.insertBefore(parentContainer.appendChild(card), beforeContainer);
   };
 
-  window.map.pins.addEventListener(`click`, (evt) => {
-    if (evt.target.matches(`img`) && !(evt.target.parentNode.matches(`.map__pin--main`))) {
-      openCard(evt);
-    }
-  });
-
-  window.map.pins.addEventListener(`keydown`, (evt) => {
-    if (evt.key === `Enter` && evt.target.matches(`.map__pin`) && !(evt.target.matches(`.map__pin--main`))) {
-      openCard(evt);
-    }
-  });
-
-  window.map.domElement.addEventListener(`click`, (evt) => {
+  document.addEventListener(`click`, (evt) => {
     if (evt.target.matches(`.popup__close`)) {
       closeCard();
     }
   });
 
-  window.map.domElement.addEventListener(`keydown`, (evt) => {
+  document.addEventListener(`keydown`, (evt) => {
     if ((evt.key === `Escape`) || (evt.key === `Enter` && evt.target.matches(`.popup__close`))) {
       closeCard();
     }
   });
 
   const closeCard = () => {
-    window.map.domElement.querySelector(`.map__card`).remove();
+    document.querySelector(`.map__card`).remove();
   };
+
+  window.card.open = openCard;
 })();

@@ -71,10 +71,10 @@
     return newAds;
   };
 
-  const dataArray = createAds(ADS_AMOUNT);
+  const ads = createAds(ADS_AMOUNT);
 
   window.data = {
-    dataArray,
+    ads,
     HouseParameters,
   };
 })();

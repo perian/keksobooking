@@ -7,24 +7,19 @@
   const notificationFieldsets = notification.querySelectorAll(`fieldset`);
 
   const address = notification.querySelector(`#address`);
-  const mainPinWidth = window.map.mainPin.offsetWidth;
-  const mainPinHeight = window.map.mainPin.offsetHeight;
-  const mainPinX = window.map.mainPin.style.left;
-  const mainPinY = window.map.mainPin.style.top;
-  const coneHeight = window.getComputedStyle(window.map.mainPin, `:after`).borderTopWidth;
 
   // При открытии страницы, поля формы не активны
-  window.map.toggleFormElementState(notificationFieldsets, true);
+  window.utils.toggleFormElementState(notificationFieldsets, true);
 
   // Находит координаты острия пина и записывает их в поле адреса
-  const setAddressValue = () => {
-    const coneX = Math.round(window.utils.transformPropertyToInteger(mainPinX) + (mainPinWidth / 2));
-    const coneY = Math.round(window.utils.transformPropertyToInteger(mainPinY) + mainPinHeight + window.utils.transformPropertyToInteger(coneHeight));
-
-    address.value = `${coneX}, ` + `${coneY}`;
+  const setAddressValue = (x, y) => {
+    address.value = `${x}, ` + `${y}`;
   };
-  setAddressValue();
 
+  const activate = () => {
+    window.utils.toggleFormElementState(notificationFieldsets, false);
+    notification.classList.remove(`ad-form--disabled`);
+  };
 
   const roomCapacity = notification.querySelector(`#capacity`);
   const roomNumbers = notification.querySelector(`#room_number`);
@@ -79,12 +74,15 @@
   moveInTime.addEventListener(`change`, () => {
     moveOutTime.value = moveInTime.value;
   });
+
   moveOutTime.addEventListener(`change`, () => {
     moveInTime.value = moveOutTime.value;
   });
 
   window.form = {
     notification,
-    notificationFieldsets
+    notificationFieldsets,
+    activate,
+    setAddressValue,
   };
 })();
