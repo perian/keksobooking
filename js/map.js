@@ -12,14 +12,25 @@
   const mainPinWidth = mainPin.offsetWidth;
   const mainPinHeight = mainPin.offsetHeight;
   const coneHeight = window.getComputedStyle(mainPin, `:after`).borderTopWidth;
-  let mainPinX = window.utils.transformPropertyToInteger(mainPin.style.left);
-  let mainPinY = window.utils.transformPropertyToInteger(mainPin.style.top);
-
-  const updateAddressField = () => {
-    const coneX = Math.round(mainPinX + (mainPinWidth / 2));
-    const coneY = Math.round(mainPinY + mainPinHeight + window.utils.transformPropertyToInteger(coneHeight));
-    window.form.setAddressValue(coneX, coneY);
+  let mainPinX = mainPin.style.left;
+  let mainPinY = mainPin.style.top;
+  const mainPinLimits = {
+    top: 630,
+    bottom: 130,
+    right: map.offsetWidth - mainPinWidth / 2,
+    left: 0 - mainPinWidth / 2,
   };
+
+  const updateAddressField = (x, y) => {
+    mainPinX = Math.round(window.utils.transformPropertyToInteger(x) + (mainPinWidth / 2));
+    mainPinY = Math.round(window.utils.transformPropertyToInteger(y) + (mainPinHeight / 2));
+
+    if (!map.classList.contains(`map--faded`)) {
+      mainPinY += Math.round(window.utils.transformPropertyToInteger(coneHeight) + (mainPinHeight / 2));
+    }
+    window.form.setAddressValue(mainPinX, mainPinY);
+  };
+  updateAddressField(mainPinX, mainPinY);
 
   pins.addEventListener(`click`, (evt) => {
     const target = evt.target.closest(`.map__pin:not(.map__pin--main)`);
@@ -40,6 +51,7 @@
 
   const activate = () => {
     map.classList.remove(`map--faded`);
+    updateAddressField(mainPin.style.left, mainPin.style.top);
 
     for (let i = 0; i < window.data.ads.length; i++) {
       fragment.appendChild(window.createPin(window.data.ads[i]));
@@ -73,24 +85,47 @@
         y: moveEvt.clientY,
       };
 
-      mainPinX = (mainPin.offsetLeft - shift.x) + `px`;
-      mainPinY = (mainPin.offsetTop - shift.y) + `px`;
+      mainPinX = (mainPin.offsetLeft - shift.x);
+      mainPinY = (mainPin.offsetTop - shift.y);
 
-      mainPin.style.left = mainPinX;
-      mainPin.style.top = mainPinY;
+      const relocate = (x, y) => {
+        mainPin.style.left = x + `px`;
+        mainPin.style.top = y + `px`;
 
-      window.form.setAddressValue(mainPinX, mainPinY);
+        mainPinX = mainPin.style.left;
+        mainPinY = mainPin.style.top;
+
+        return (mainPinX, mainPinY);
+      };
+
+      const checkMainPinLimits = () => {
+        if (mainPinX > mainPinLimits.right) {
+          mainPinX = mainPinLimits.right;
+        } else if (mainPinX < mainPinLimits.left) {
+          mainPinX = mainPinLimits.left;
+        }
+        if (mainPinY > mainPinLimits.top) {
+          mainPinY = mainPinLimits.top;
+        } else if (mainPinY < mainPinLimits.bottom) {
+          mainPinY = mainPinLimits.bottom;
+        }
+        relocate(mainPinX, mainPinY);
+      };
+      checkMainPinLimits();
+
+      updateAddressField(mainPinX, mainPinY);
     };
 
     const onMouseUp = (upEvt) => {
+
       upEvt.preventDefault();
 
-      mainPin.removeEventListener(`mouseup`, onMouseUp);
-      mainPin.removeEventListener(`mousemove`, onMouseMove);
+      document.removeEventListener(`mouseup`, onMouseUp);
+      document.removeEventListener(`mousemove`, onMouseMove);
     };
 
-    mainPin.addEventListener(`mouseup`, onMouseUp);
-    mainPin.addEventListener(`mousemove`, onMouseMove);
+    document.addEventListener(`mouseup`, onMouseUp);
+    document.addEventListener(`mousemove`, onMouseMove);
   });
 
   window.map = {
@@ -102,5 +137,6 @@
     mainPinX,
     mainPinY,
     filterContainer,
+    updateAddressField,
   };
 })();
