@@ -3,11 +3,28 @@
 (function () {
   const NOT_FOR_GUESTS = 0;
   const HUNDRED_ROOMS = 100;
+  const notification = document.querySelector(`.ad-form`);
+  const notificationFieldsets = notification.querySelectorAll(`fieldset`);
 
-  const roomCapacity = window.main.notificationForm.querySelector(`#capacity`);
-  const roomNumbers = window.main.notificationForm.querySelector(`#room_number`);
+  const address = notification.querySelector(`#address`);
 
-  const checkRoomsCapacity = () => {
+  // При открытии страницы, поля формы не активны
+  window.utils.toggleFormElementState(notificationFieldsets, true);
+
+  // Находит координаты острия пина и записывает их в поле адреса
+  const setAddressValue = (x, y) => {
+    address.value = `${x}, ` + `${y}`;
+  };
+
+  const activate = () => {
+    window.utils.toggleFormElementState(notificationFieldsets, false);
+    notification.classList.remove(`ad-form--disabled`);
+  };
+
+  const roomCapacity = notification.querySelector(`#capacity`);
+  const roomNumbers = notification.querySelector(`#room_number`);
+
+  const onCapacitySelectChange = () => {
     roomCapacity.invalid = true;
     roomCapacity.reportValidity();
 
@@ -26,44 +43,46 @@
     }
   };
 
-  roomNumbers.addEventListener(`change`, () => {
-    checkRoomsCapacity();
-  });
+  roomNumbers.addEventListener(`change`, onCapacitySelectChange);
+  roomCapacity.addEventListener(`change`, onCapacitySelectChange);
+  onCapacitySelectChange();
 
-  roomCapacity.addEventListener(`change`, () => {
-    checkRoomsCapacity();
-  });
-
-  checkRoomsCapacity();
-
-  const adTitle = window.main.notificationForm.querySelector(`#title`);
+  // Проверка валидности поля "Заголовок объявления"
+  const adTitle = notification.querySelector(`#title`);
   adTitle.addEventListener(`change`, () => {
     adTitle.reportValidity();
   });
 
   // Валидация соответствия полей "Тип жилья" и "Цена за ночь"
-  const houseType = window.main.notificationForm.querySelector(`#type`);
-  const housePrice = window.main.notificationForm.querySelector(`#price`);
+  const houseType = notification.querySelector(`#type`);
+  const housePrice = notification.querySelector(`#price`);
 
-  const checkHousePriceValidity = () => {
+  const onPriceInputChange = () => {
     const houseTypeValue = houseType.value;
-    housePrice.setAttribute(`min`, window.main.HouseData[houseTypeValue].minPrice);
-    housePrice.setAttribute(`placeholder`, window.main.HouseData[houseTypeValue].minPrice);
+    housePrice.setAttribute(`min`, window.data.HouseParameters[houseTypeValue].minPrice);
+    housePrice.setAttribute(`placeholder`, window.data.HouseParameters[houseTypeValue].minPrice);
     housePrice.reportValidity();
   };
 
-  houseType.addEventListener(`change`, checkHousePriceValidity);
-  housePrice.addEventListener(`change`, checkHousePriceValidity);
-
+  houseType.addEventListener(`change`, onPriceInputChange);
+  housePrice.addEventListener(`change`, onPriceInputChange);
 
   // Валидация соответствия полей "Время заезда" и "Время выезда"
-  const moveInTime = window.main.notificationForm.querySelector(`#timein`);
-  const moveOutTime = window.main.notificationForm.querySelector(`#timeout`);
+  const moveInTime = notification.querySelector(`#timein`);
+  const moveOutTime = notification.querySelector(`#timeout`);
 
   moveInTime.addEventListener(`change`, () => {
     moveOutTime.value = moveInTime.value;
   });
+
   moveOutTime.addEventListener(`change`, () => {
     moveInTime.value = moveOutTime.value;
   });
+
+  window.form = {
+    notification,
+    notificationFieldsets,
+    activate,
+    setAddressValue,
+  };
 })();
