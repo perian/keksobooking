@@ -71,10 +71,22 @@
     return newAds;
   };
 
-  const ads = createAds(ADS_AMOUNT);
+  const adss = createAds(ADS_AMOUNT);
+  const URL = `https://21.javascript.pages.academy/keksobooking/data`;
+  let ads;
+  const onSuccess = (data) => {
+    ads = data;
+    return ads;
+  };
+  const onError = (message) => {
+    console.error(message);
+  };
+  window.load(URL, onSuccess, onError);
 
+  console.log(adss);
+  console.log(ads);
   window.data = {
-    ads,
+    // ads,
     HouseParameters,
   };
 })();
